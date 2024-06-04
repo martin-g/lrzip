@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: prepare repo
       run: git fetch --prune --unshallow
     - name: autogen
@@ -27,3 +27,41 @@ jobs:
       run: make
     - name: make check
       run: make check
+
+
+  build-osx:
+
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v4
+    # - name: prepare repo
+    #   run: git fetch --prune --unshallow
+    - name: install autoconf/make
+      run: |
+        brew install autoconf automake libtool
+        brew install --cask miniconda
+        conda info
+        ls -laR /opt/homebrew/Caskroom/miniconda/base/lib
+    - name: conda install
+      run: |
+        # conda create -n lrzip --yes lzo zlib bzip2 lz4-c
+        # conda init bash
+        # conda activate lrzip
+        conda install --yes lzo zlib bzip2 lz4-c
+        ls -laR /opt/homebrew/Caskroom/miniconda/base/lib
+    - name: autogen
+      run: |
+        export LD_LIBRARY_PATH=/opt/homebrew/Caskroom/miniconda/base/lib
+        ./autogen.sh
+    # - name: install liblzo2
+    #   run: brew install lzo
+    # - name: install liblz4-dev
+    #   run: brew install lz4
+    # - name: configure
+    #   run: ./configure
+    - name: make
+      run: make -j
+    - name: make check
+      run: make check
+    
